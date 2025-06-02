@@ -1,0 +1,65 @@
+# ========================
+# General
+# ========================
+.DS_Store
+Thumbs.db
+.env
+.env.*.local
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# IDEs / Editors
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# ========================
+# Node.js (server)
+# ========================
+server/node_modules/
+server/.env
+server/dist/
+server/build/
+server/logs/
+
+# PM2 logs or runtime files
+server/pids/
+server/*.pid
+server/*.seed
+
+# TypeScript (optional)
+server/tsconfig.tsbuildinfo
+
+# ========================
+# React (client)
+# ========================
+client/node_modules/
+client/.env
+client/build/
+client/.next/
+client/.turbo/
+client/.vite/
+client/dist/
+
+# Testing
+client/coverage/
+client/jest-html-reporters-*.html
+
+# TypeScript (optional)
+client/tsconfig.tsbuildinfo
+
+# ========================
+# Misc
+# ========================
+*.bak
+*.tmp
+*.swp
+*.lock
