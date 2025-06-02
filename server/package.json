@@ -1,0 +1,38 @@
+{
+  "name": "erp",
+  "version": "1.0.0",
+  "description": "A simplified backend API for an Enterprise Resource Planner (ERP) system, focusing on inventory and order management. The core objective is to sharpen SQL proficiency through extensive use of raw SQL queries for all data operations, backed by a Node.js with Express backend, and a minimal React frontend for interaction.",
+  "homepage": "https://github.com/Code-With-Anthony/ERP#readme",
+  "bugs": {
+    "url": "https://github.com/Code-With-Anthony/ERP/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Code-With-Anthony/ERP.git"
+  },
+  "license": "ISC",
+  "author": "Anthony Dourado",
+  "type": "commonjs",
+  "main": "dist/server.js",
+  "scripts": {
+    "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
+    "build": "tsc",
+    "start": "node dist/server.js"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.49.8",
+    "@types/pg": "^8.15.4",
+    "cors": "^2.8.5",
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0",
+    "nodemon": "^3.1.10",
+    "pg": "^8.16.0"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.18",
+    "@types/express": "^5.0.2",
+    "@types/node": "^22.15.29",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.8.3"
+  }
+}
