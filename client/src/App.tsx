@@ -4,6 +4,7 @@ import ProductsPage from "./pages/ProductsPage"
 import { createTheme, ThemeProvider } from "@mui/material"
 import Layout from "./pages/Layout"
 import CustomersPage from "./pages/CustomersPage"
+import OrdersPage from "./pages/OrdersPage"
 
 const App = () => {
   const theme = createTheme({
@@ -24,6 +25,7 @@ const App = () => {
             <Routes>
               <Route path="/" element={<ProductsPage />} />
               <Route path="/customers" element={<CustomersPage />} />
+              <Route path="/orders" element={<OrdersPage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Layout>

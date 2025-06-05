@@ -16,5 +16,5 @@ export const ERROR_MESSAGES = {
     ORDER_STATUS_UPDATE_FAILED: "Failed to update order status",
     ORDER_CANCELLATION_FAILED: "Failed to cancel order",
     ORDER_MUST_HAVE_ITEMS: "Order must contain at least one item",
-    INSUFFICIENT_STOCK: "Insufficient stock for product_id",
+    INSUFFICIENT_STOCK: "Insufficient stock for product",
 };

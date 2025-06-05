@@ -18,6 +18,7 @@ import {
     Menu as MenuIcon,
     People as CustomersIcon,
     Inventory as ProductsIcon,
+    ShoppingCart as OrdersIcon,
 } from "@mui/icons-material"
 import { useState } from "react"
 import { useNavigate, useLocation } from "react-router-dom"
@@ -27,6 +28,7 @@ const drawerWidth = 240
 const menuItems = [
     { path: "/", label: "Products", icon: <ProductsIcon /> },
     { path: "/customers", label: "Customers", icon: <CustomersIcon /> },
+    { path: "/orders", label: "Orders", icon: <OrdersIcon /> },
 ]
 
 const Layout = ({ children }: { children: React.ReactNode }) => {

@@ -19,9 +19,14 @@ export const createOrder = async (req: any, res: any) => {
                 [item.product_id]
             );
             const stock = stockRes.rows[0]?.current_stock;
+            const productName = await client.query(
+                'SELECT product_name FROM products WHERE product_id = $1',
+                [item.product_id]
+            );
+            const productNameRes = productName.rows[0]?.product_name;
             if (stock === undefined || stock < item.quantity) {
                 await client.query('ROLLBACK');
-                return res.status(400).json({ message: `${ERROR_MESSAGES.INSUFFICIENT_STOCK} ${item.product_id}` });
+                return res.status(400).json({ message: `${ERROR_MESSAGES.INSUFFICIENT_STOCK} ${productNameRes}` });
             }
         }
 
@@ -100,6 +105,7 @@ export const getOrderById = async (req: any, res: any) => {
 export const updateOrderStatus = async (req: any, res: any) => {
     const orderId = parseInt(req.params.id);
     const { status } = req.body;
+    const newStatus = status.toUpperCase();
 
     const validTransitions: { [key: string]: string[] } = {
         PENDING: ['SHIPPED', 'CANCELLED'],
@@ -119,13 +125,13 @@ export const updateOrderStatus = async (req: any, res: any) => {
         }
 
         const currentStatus = currentRes.rows[0].order_status;
-        if (!validTransitions[currentStatus].includes(status)) {
-            return res.status(400).json({ message: `Invalid status transition from ${currentStatus} to ${status}` });
+        if (!validTransitions[currentStatus].includes(newStatus)) {
+            return res.status(400).json({ message: `Invalid status transition from ${currentStatus} to ${newStatus}` });
         }
 
         await pool.query(
             'UPDATE orders SET order_status = $1 WHERE order_id = $2',
-            [status, orderId]
+            [newStatus, orderId]
         );
 
         res.json({ message: SUCCESS_MESSAGES.ORDER_STATUS_UPDATED });

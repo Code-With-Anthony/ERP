@@ -162,7 +162,6 @@ const CustomersPage: React.FC = () => {
                 columns={columns}
                 onEdit={handleEdit}
                 onDelete={handleDelete}
-                getRowId={(customer) => customer.customer_id ?? ""}
             />
 
             <CustomerDialog

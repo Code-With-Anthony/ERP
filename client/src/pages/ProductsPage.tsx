@@ -193,7 +193,6 @@ const ProductsPage = () => {
                 columns={columns}
                 onEdit={handleEdit}
                 onDelete={handleDelete}
-                getRowId={(product) => product.product_id ?? ""}
             />
 
             <ProductDialog
