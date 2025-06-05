@@ -52,7 +52,7 @@ router.post("/", async (req, res) => {
     } catch (err) {
         res.status(500).json({
             message: ERROR_MESSAGES.CUSTOMER_CREATION_FAILED,
-            error: err
+            err: err
         })
     }
 })

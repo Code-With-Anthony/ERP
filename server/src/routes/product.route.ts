@@ -21,7 +21,7 @@ router.get('/', async (_, res) => {
             data: products
         });
     } catch (error) {
-        res.status(500).json({ error: ERROR_MESSAGES.FETCH_ALL_PRODUCTS_FAILED });
+        res.status(500).json({ msg: ERROR_MESSAGES.FETCH_ALL_PRODUCTS_FAILED, err: error });
     }
 });
 
@@ -34,7 +34,7 @@ router.get('/low-stock', async (_, res) => {
             data: lowStockProducts
         });
     } catch (error) {
-        res.status(500).json({ error: ERROR_MESSAGES.FETCH_LOW_STOCK_PRODUCTS_FAILED });
+        res.status(500).json({ msg: ERROR_MESSAGES.FETCH_LOW_STOCK_PRODUCTS_FAILED, err: error });
     }
 });
 
@@ -50,7 +50,7 @@ router.get('/:id', async (req: any, res: any) => {
             data: product
         });
     } catch (error) {
-        res.status(500).json({ error: ERROR_MESSAGES.FETCH_PRODUCT_BY_ID_FAILED });
+        res.status(500).json({ msg: ERROR_MESSAGES.FETCH_PRODUCT_BY_ID_FAILED, err: error });
     }
 });
 
@@ -63,7 +63,7 @@ router.post('/', async (req, res) => {
             data: newProduct
         });
     } catch (error) {
-        res.status(500).json({ error: ERROR_MESSAGES.PRODUCT_CREATION_FAILED });
+        res.status(500).json({ msg: ERROR_MESSAGES.PRODUCT_CREATION_FAILED, err: error });
     }
 });
 
@@ -76,7 +76,7 @@ router.put('/:id', async (req, res) => {
             data: updatedProduct
         });
     } catch (error) {
-        res.status(500).json({ error: ERROR_MESSAGES.PRODUCT_UPDATE_FAILED });
+        res.status(500).json({ msg: ERROR_MESSAGES.PRODUCT_UPDATE_FAILED, err: error });
     }
 });
 
@@ -89,7 +89,7 @@ router.delete('/:id', async (req, res) => {
             data: deletedProduct
         });
     } catch (error) {
-        res.status(500).json({ error: ERROR_MESSAGES.PRODUCT_DELETION_FAILED });
+        res.status(500).json({ msg: ERROR_MESSAGES.PRODUCT_DELETION_FAILED, err: error });
     }
 });
 

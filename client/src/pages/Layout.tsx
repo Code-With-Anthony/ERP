@@ -16,6 +16,7 @@ import {
 } from "@mui/material"
 import {
     Menu as MenuIcon,
+    People as CustomersIcon,
     Inventory as ProductsIcon,
 } from "@mui/icons-material"
 import { useState } from "react"
@@ -25,6 +26,7 @@ const drawerWidth = 240
 
 const menuItems = [
     { path: "/", label: "Products", icon: <ProductsIcon /> },
+    { path: "/customers", label: "Customers", icon: <CustomersIcon /> },
 ]
 
 const Layout = ({ children }: { children: React.ReactNode }) => {

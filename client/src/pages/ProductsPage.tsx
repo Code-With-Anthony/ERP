@@ -7,8 +7,8 @@ import {
     Typography
 } from "@mui/material"
 import { useEffect, useState } from "react"
-import ProductDialog from "../components/Product/ProductDialog"
-import ProductTable from "../components/Product/ProductTable"
+import TableComponent from "../components/Common/Table"
+import ProductDialog from "../components/Dialog/ProductDialog"
 import { productSchema } from "../schemas/productSchema"
 import type { Product } from "../types/Product"
 
@@ -48,7 +48,8 @@ const ProductsPage = () => {
         try {
             const response = await fetch("/api/products/low-stock")
             const data = await response.json()
-            setLowStockProducts(data)
+            console.log("low stock data: ", data)
+            setLowStockProducts(data.data)
         } catch (error) {
             console.error("Error fetching low stock products:", error)
         }
@@ -108,10 +109,11 @@ const ProductsPage = () => {
         }
     }
 
-    const handleDelete = async (id: number) => {
+    const handleDelete = async (product: Product) => {
+        const productId = product.product_id;
         if (window.confirm("Are you sure you want to delete this product?")) {
             try {
-                const response = await fetch(`/api/products/${id}`, { method: "DELETE" })
+                const response = await fetch(`/api/products/${productId}`, { method: "DELETE" })
                 if (response.ok) {
                     showSnackbar("Product deleted successfully", "success")
                     fetchProducts()
@@ -154,6 +156,14 @@ const ProductsPage = () => {
         setSnackbar({ open: true, message, severity })
     }
 
+    const columns: { label: string; key: keyof Product; render?: (value: any, row: Product) => React.ReactNode }[] = [
+        { label: "Name", key: "product_name" },
+        { label: "Description", key: "description" },
+        { label: "Price", key: "unit_price", render: (value) => `₹${value}` },
+        { label: "Stock", key: "current_stock" },
+        { label: "Reorder Level", key: "reorder_level" },
+    ];
+
     return (
         <Box>
             <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
@@ -178,7 +188,13 @@ const ProductsPage = () => {
                 </Alert>
             )}
 
-            <ProductTable products={products} onEdit={handleEdit} onDelete={handleDelete} />
+            <TableComponent
+                data={products}
+                columns={columns}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+                getRowId={(product) => product.product_id ?? ""}
+            />
 
             <ProductDialog
                 open={openDialog}
