@@ -1,40 +1,23 @@
-import { Add as AddIcon, Delete as DeleteIcon, Edit, Visibility as ViewIcon } from "@mui/icons-material"
+import { Add as AddIcon, Visibility as ViewIcon } from "@mui/icons-material"
 import {
     Alert,
     Box,
     Button,
-    Card,
-    CardContent,
     Chip,
-    Dialog,
-    DialogActions,
-    DialogContent,
-    DialogTitle,
-    Divider,
-    FormControl,
-    Grid,
     IconButton,
-    InputLabel,
-    MenuItem,
-    Paper,
-    Select,
     Snackbar,
-    Table,
-    TableBody,
-    TableCell,
-    TableContainer,
-    TableHead,
-    TableRow,
-    TextField,
-    Typography,
-    useMediaQuery,
-    useTheme
+    Typography
 } from "@mui/material"
 import type React from "react"
 import { useEffect, useState } from "react"
+import TableComponent from "../components/Common/Table"
+import EditStatusDialog from "../components/Dialog/EditStatusDialog"
+import OrderDetailsDialog from "../components/Dialog/OrderDetailsDialog"
+import PlaceOrderDialog from "../components/Dialog/PlaceOrderDialog"
 import type { Customer } from "../types/Customer"
 import type { Order, OrderDetail, OrderItem, OrderRequest } from "../types/Order"
 import type { Product } from "../types/Product"
+import { getStatusColor } from "../utils/utils"
 
 const OrdersPage: React.FC = () => {
     const [orders, setOrders] = useState<Order[]>([])
@@ -51,9 +34,6 @@ const OrdersPage: React.FC = () => {
     })
     const [statusOrderId, setStatusOrderId] = useState<number | null>(null);
     const [newStatus, setNewStatus] = useState<string>("");
-
-    const theme = useTheme()
-    const isMobile = useMediaQuery(theme.breakpoints.down("md"))
 
     useEffect(() => {
         fetchOrders()
@@ -143,9 +123,14 @@ const OrdersPage: React.FC = () => {
                         fieldErrors[err.path[0]] = err.message;
                     }
                 });
-                // setFormErrors(fieldErrors);
             } else {
-                showSnackbar("Failed to place order", "error");
+                const message =
+                    typeof error === "string"
+                        ? error
+                        : error instanceof Error && error.message
+                            ? error.message
+                            : "An unexpected error occurred";
+                showSnackbar(message, "error");
             }
         }
     }
@@ -173,8 +158,13 @@ const OrdersPage: React.FC = () => {
                 throw new Error(errorMessage);
             }
         } catch (error) {
-            showSnackbar("Error updating order status", "error")
-            console.error(error)
+            const message =
+                typeof error === "string"
+                    ? error
+                    : (error instanceof Error && error.message)
+                        ? error.message
+                        : "An unexpected error occurred";
+            showSnackbar(message, "error");
         }
     }
 
@@ -186,14 +176,21 @@ const OrdersPage: React.FC = () => {
                     showSnackbar("Order deleted successfully", "success")
                     fetchOrders();
                 } else {
-                    throw new Error("Failed to delete order")
+                    const errorData = await response.json();
+                    const errorMessage = errorData?.message || "Failed to delete order";
+                    throw new Error(errorMessage);
                 }
                 const updatedOrders = orders.filter((o) => o.order_id !== id)
                 setOrders(updatedOrders)
                 showSnackbar("Order cancelled successfully", "success")
             } catch (error) {
-                showSnackbar("Error cancelling order", "error")
-                console.error(error)
+                const message =
+                    typeof error === "string"
+                        ? error
+                        : error instanceof Error && error.message
+                            ? error.message
+                            : "Error deleting order";
+                showSnackbar(message, "error");
             }
         }
     }
@@ -240,25 +237,9 @@ const OrdersPage: React.FC = () => {
         setSnackbar({ open: true, message, severity })
     }
 
-    const getStatusColor = (status: string) => {
-        switch (status?.toLowerCase()) {
-            case "pending":
-                return "warning"
-            case "shipped":
-                return "primary"
-            case "delivered":
-                return "success"
-            case "cancelled":
-                return "error"
-            default:
-                return "default"
-        }
-    }
-
     const calculateTotal = () => {
         return formData.items.reduce((total, item) => total + item.price * item.quantity, 0)
     }
-
 
     return (
         <Box>
@@ -271,323 +252,64 @@ const OrdersPage: React.FC = () => {
                 </Button>
             </Box>
 
-            {isMobile ? (
-                <Grid container spacing={2}>
-                    {orders?.map((order) => (
-                        <Grid size={12} key={order.order_id}>
-                            <Card>
-                                <CardContent>
-                                    <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 1 }}>
-                                        <Typography variant="h6" component="h2">
-                                            Order #{order.order_id}
-                                        </Typography>
-                                        <Box>
-                                            <IconButton size="small" onClick={() => fetchOrderDetails(order.order_id)}>
-                                                <ViewIcon />
-                                            </IconButton>
-                                            <IconButton size="small" onClick={() => handleDelete(order.order_id)}>
-                                                <DeleteIcon />
-                                            </IconButton>
-                                        </Box>
-                                    </Box>
-                                    <Typography color="text.secondary" gutterBottom>
-                                        Customer: {order.customer_name}
-                                    </Typography>
-                                    <Typography variant="h6" color="primary" gutterBottom>
-                                        ${order.total_amount}
-                                    </Typography>
-                                    <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mt: 1 }}>
-                                        <Chip label={order.order_status} color={getStatusColor(order.order_status) as any} size="small" />
-                                        <Typography variant="body2" color="text.secondary">
-                                            {new Date(order.order_date).toLocaleDateString()}
-                                        </Typography>
-                                    </Box>
-                                    <Box sx={{ mt: 2 }}>
-                                        <FormControl size="small" fullWidth>
-                                            <InputLabel>Update Status</InputLabel>
-                                            <Select
-                                                value={order?.order_status?.toLocaleLowerCase()}
-                                                label="Update Status"
-                                                onChange={(e) => handleStatusUpdate(order.order_id, e.target.value)}
-                                            >
-                                                <MenuItem value="pending">Pending</MenuItem>
-                                                <MenuItem value="shipped">Shipped</MenuItem>
-                                                <MenuItem value="delivered">Delivered</MenuItem>
-                                                <MenuItem value="cancelled">Cancelled</MenuItem>
-                                            </Select>
-                                        </FormControl>
-                                    </Box>
-                                </CardContent>
-                            </Card>
-                        </Grid>
-                    ))}
-                </Grid>
-            ) : (
-                <TableContainer component={Paper}>
-                    <Table>
-                        <TableHead>
-                            <TableRow>
-                                <TableCell>Order ID</TableCell>
-                                <TableCell>Customer</TableCell>
-                                <TableCell>Date</TableCell>
-                                <TableCell>Status</TableCell>
-                                <TableCell>Total Amount</TableCell>
-                                <TableCell>Actions</TableCell>
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {orders?.map((order) => (
-                                <TableRow key={order?.order_id}>
-                                    <TableCell>#{order?.order_id}</TableCell>
-                                    <TableCell>{order?.customer_name}</TableCell>
-                                    <TableCell>{new Date(order?.order_date).toLocaleDateString()}</TableCell>
-                                    <TableCell>
-                                        <Chip
-                                            variant="outlined"
-                                            label={order?.order_status.charAt(0).toUpperCase() + order?.order_status.slice(1)}
-                                            color={getStatusColor(order?.order_status.toLowerCase())}
-                                            sx={{
-                                                textTransform: "capitalize",
-                                                fontWeight: "bold",
-                                                padding: "5px 12px",
-                                                borderRadius: 3
-                                            }}
-                                        />
-                                    </TableCell>
-                                    <TableCell>₹{order?.total_amount}</TableCell>
-                                    <TableCell>
-                                        <IconButton onClick={() => fetchOrderDetails(order?.order_id)}>
-                                            <ViewIcon />
-                                        </IconButton>
-                                        <IconButton onClick={() => handleDelete(order?.order_id)}>
-                                            <DeleteIcon />
-                                        </IconButton>
-                                        <IconButton onClick={() => {
-                                            setOpenEditDialog(true)
-                                            setStatusOrderId(order.order_id);
-                                            setNewStatus(order?.order_status.toLocaleLowerCase());
-                                        }}>
-                                            <Edit />
-                                        </IconButton>
-                                    </TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                </TableContainer>
-            )}
+            {/* Order Details Table */}
+            <TableComponent
+                data={orders}
+                columns={[
+                    { label: "Order ID", key: "order_id", render: (v) => `#${v}` },
+                    { label: "Customer", key: "customer_name" },
+                    {
+                        label: "Date", key: "order_date", render: (v) =>
+                            new Date(v).toLocaleDateString()
+                    },
+                    {
+                        label: "Status", key: "order_status", render: (v) => (
+                            <Chip
+                                label={v.charAt(0).toUpperCase() + v.slice(1)}
+                                color={getStatusColor(v)}
+                                variant="outlined"
+                                sx={{ textTransform: "capitalize", fontWeight: "bold", padding: "5px 12px", borderRadius: 3 }}
+                            />
+                        )
+                    },
+                    {
+                        label: "Total Amount", key: "total_amount", render: (v) => `₹${v}`
+                    }
+                ]}
+                onEdit={(row) => {
+                    setOpenEditDialog(true);
+                    setStatusOrderId(row.order_id ?? 0);
+                    setNewStatus(row.order_status.toLowerCase());
+                }}
+                onDelete={(row) => handleDelete(row.order_id ?? 0)}
+                actions={(row) => (
+                    <IconButton onClick={() => fetchOrderDetails(row.order_id ?? 0)}>
+                        <ViewIcon />
+                    </IconButton>
+                )}
+            />
 
             {/* Place Order Dialog */}
-            <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="md" fullWidth disablePortal={false}>
-                <DialogTitle>Place New Order</DialogTitle>
-                <DialogContent>
-                    <Box sx={{ pt: 2 }}>
-                        <Grid container spacing={2}>
-                            <Grid size={12}>
-                                <FormControl fullWidth>
-                                    <InputLabel>Customer</InputLabel>
-                                    <Select
-                                        value={formData.customer_id}
-                                        label="Customer"
-                                        onChange={(e) => setFormData({ ...formData, customer_id: e.target.value })}
-                                    >
-                                        {customers.map((customer) => (
-                                            <MenuItem key={customer.customer_id} value={customer.customer_id}>
-                                                {customer.customer_name}
-                                            </MenuItem>
-                                        ))}
-                                    </Select>
-                                </FormControl>
-                            </Grid>
-
-                            <Grid size={12}>
-                                <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
-                                    <Typography variant="h6">Order Items</Typography>
-                                    <Button onClick={addOrderItem} startIcon={<AddIcon />}>
-                                        Add Item
-                                    </Button>
-                                </Box>
-
-                                {formData.items.map((item, index) => (
-                                    <Box key={index} sx={{ mb: 2, p: 2, border: "1px solid #ddd", borderRadius: 1 }}>
-                                        <Grid container spacing={2} alignItems="center">
-                                            <Grid size={12}>
-                                                <FormControl fullWidth>
-                                                    <InputLabel>Product</InputLabel>
-                                                    <Select
-                                                        value={item.product_id}
-                                                        label="Product"
-                                                        onChange={(e) => updateOrderItem(index, "product_id", e.target.value)}
-                                                    >
-                                                        {products.map((product) => (
-                                                            <MenuItem key={product.product_id} value={product.product_id}>
-                                                                {product.product_name} (Stock: {product.current_stock})
-                                                            </MenuItem>
-                                                        ))}
-                                                    </Select>
-                                                </FormControl>
-                                            </Grid>
-                                            <Grid size={12}>
-                                                <TextField
-                                                    fullWidth
-                                                    label="Quantity"
-                                                    type="number"
-                                                    value={item.quantity}
-                                                    onChange={(e) => updateOrderItem(index, "quantity", Number.parseInt(e.target.value))}
-                                                    inputProps={{ min: 1 }}
-                                                />
-                                            </Grid>
-                                            <Grid size={12}>
-                                                <TextField fullWidth label="Price" value={`$${item.price}`} disabled />
-                                            </Grid>
-                                            <Grid size={12}>
-                                                <TextField
-                                                    fullWidth
-                                                    label="Subtotal"
-                                                    value={`$${(item.price * item.quantity).toFixed(2)}`}
-                                                    disabled
-                                                />
-                                            </Grid>
-                                            <Grid size={12} >
-                                                <IconButton onClick={() => removeOrderItem(index)} color="error">
-                                                    <DeleteIcon />
-                                                </IconButton>
-                                            </Grid>
-                                        </Grid>
-                                    </Box>
-                                ))}
-
-                            </Grid>
-                        </Grid>
-                    </Box>
-                </DialogContent>
-                <DialogActions sx={{ display: "flex", justifyContent: "space-between", px: 3 }}>
-                    <Typography variant="h6">
-                        Total: ₹{formData.items.length > 0 ? calculateTotal().toFixed(2) : "0.00"}
-                    </Typography>
-                    <Box>
-                        <Button onClick={handleCloseDialog}>Cancel</Button>
-                        <Button
-                            onClick={handleSubmit}
-                            variant="contained"
-                            disabled={!formData.customer_id || formData.items.length === 0}
-                        >
-                            Place Order
-                        </Button>
-                    </Box>
-                </DialogActions>
-
-            </Dialog>
+            <PlaceOrderDialog addOrderItem={addOrderItem} calculateTotal={calculateTotal} customers={customers} formData={formData} handleSubmit={handleSubmit} onClose={handleCloseDialog} open={openDialog} products={products} removeOrderItem={removeOrderItem} setFormData={setFormData} updateOrderItem={updateOrderItem} />
 
             {/* Order Details Dialog */}
-            <Dialog
+            <OrderDetailsDialog
                 open={openDetailDialog}
                 onClose={() => setOpenDetailDialog(false)}
-                maxWidth="md"
-                fullWidth
-                disablePortal={false}
-            >
-                <DialogTitle>Order Details</DialogTitle>
-                <DialogContent>
-                    {selectedOrder && (
-                        <Box sx={{ pt: 1 }}>
-                            <Grid container spacing={2} sx={{ mb: 3 }}>
-                                <Grid size={12}>
-                                    <Typography variant="h6">Order #{selectedOrder[0].order_id}</Typography>
-                                    <Typography>Date: {new Date(selectedOrder[0].order_date).toLocaleDateString()}</Typography>
-                                    <Box sx={{ display: "flex" }}>
-                                        <Typography>
-                                            Status:
-                                        </Typography>
-                                        <Chip
-                                            label={selectedOrder[0].order_status}
-                                            color={getStatusColor(selectedOrder[0].order_status) as any}
-                                            size="small"
-                                            sx={{ ml: 1 }}
-                                        />
-                                    </Box>
-                                </Grid>
-                                <Grid size={12}>
-                                    <Typography variant="h6">Customer Information</Typography>
-                                    <Typography>{selectedOrder[0].customer_name}</Typography>
-                                    <Typography>{selectedOrder[0].email}</Typography>
-                                    <Typography>{selectedOrder[0].phone_number}</Typography>
-                                </Grid>
-                            </Grid>
-
-                            <Divider sx={{ my: 2 }} />
-
-                            <Typography variant="h6" gutterBottom>
-                                Order Items
-                            </Typography>
-                            <TableContainer component={Paper}>
-                                <Table>
-                                    <TableHead>
-                                        <TableRow>
-                                            <TableCell>Product</TableCell>
-                                            <TableCell>Quantity</TableCell>
-                                            <TableCell>Price</TableCell>
-                                            <TableCell>Subtotal</TableCell>
-                                        </TableRow>
-                                    </TableHead>
-                                    <TableBody>
-                                        {selectedOrder?.map((item: OrderDetail, index: number) => (
-                                            <TableRow key={index}>
-                                                <TableCell>{item?.product_name}</TableCell>
-                                                <TableCell>{item?.quantity}</TableCell>
-                                                <TableCell>${item?.unit_price_at_order}</TableCell>
-                                                <TableCell>${((item?.unit_price_at_order) * item?.quantity).toFixed(2)}</TableCell>
-                                            </TableRow>
-                                        ))}
-                                    </TableBody>
-                                </Table>
-                            </TableContainer>
-
-                            <Box sx={{ mt: 2, textAlign: "right" }}>
-                                <Typography variant="h6">Total Amount: ${selectedOrder[0].total_amount}</Typography>
-                            </Box>
-                        </Box>
-                    )}
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={() => setOpenDetailDialog(false)}>Close</Button>
-                </DialogActions>
-            </Dialog>
+                orderDetails={selectedOrder}
+            />
 
             {/* Edit Status Dialog */}
-            <Dialog open={openEditDialog} onClose={() => setOpenEditDialog(false)}>
-                <DialogTitle>Update Order Status</DialogTitle>
-                <DialogContent>
-                    <FormControl fullWidth sx={{ mt: 2 }}>
-                        <InputLabel>Status</InputLabel>
-                        <Select
-                            value={newStatus}
-                            label="Status"
-                            onChange={(e) => setNewStatus(e.target.value)}
-                        >
-                            <MenuItem value="pending">Pending</MenuItem>
-                            <MenuItem value="shipped">Shipped</MenuItem>
-                            <MenuItem value="delivered">Delivered</MenuItem>
-                            <MenuItem value="cancelled">Cancelled</MenuItem>
-                        </Select>
-                    </FormControl>
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={() => setOpenEditDialog(false)}>Cancel</Button>
-                    <Button
-                        variant="contained"
-                        onClick={() => {
-                            if (statusOrderId !== null) {
-                                handleStatusUpdate(statusOrderId, newStatus);
-                            }
-                            setOpenEditDialog(false);
-                        }}
-                    >
-                        Save
-                    </Button>
-                </DialogActions>
-            </Dialog>
-
+            <EditStatusDialog
+                open={openEditDialog}
+                onClose={() => setOpenEditDialog(false)}
+                status={newStatus}
+                onChange={setNewStatus}
+                onSave={() => {
+                    if (statusOrderId !== null) handleStatusUpdate(statusOrderId, newStatus);
+                    setOpenEditDialog(false);
+                }}
+            />
 
             <Snackbar
                 open={snackbar.open}
