@@ -12,6 +12,7 @@ import TableComponent from "../components/Common/Table"
 import CustomerDialog from "../components/Dialog/CustomerDialog"
 import { customerSchema } from "../schemas/customerSchema"
 import type { Customer } from "../types/Customer"
+import SkeletonTable from "../components/Common/SkeletonTable"
 
 const CustomersPage: React.FC = () => {
     const [customers, setCustomers] = useState<Customer[]>([])
@@ -25,6 +26,7 @@ const CustomersPage: React.FC = () => {
         address: "",
     });
     const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+    const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
         fetchCustomers()
@@ -32,11 +34,14 @@ const CustomersPage: React.FC = () => {
 
     const fetchCustomers = async () => {
         try {
+            setIsLoading(true)
             const response = await fetch("api/customers");
             const data = await response.json();
             setCustomers(data.data)
         } catch {
             showSnackbar("Error fetching customers", "error")
+        } finally {
+            setIsLoading(false);
         }
     }
 
@@ -157,12 +162,19 @@ const CustomersPage: React.FC = () => {
                 </Button>
             </Box>
 
-            <TableComponent
-                data={customers}
-                columns={columns}
-                onEdit={handleEdit}
-                onDelete={handleDelete}
-            />
+            {
+                isLoading ? (
+                    <SkeletonTable rows={5} columns={6} />
+                ) : (
+                    <TableComponent
+                        data={customers}
+                        columns={columns}
+                        onEdit={handleEdit}
+                        onDelete={handleDelete}
+                    />
+                )
+            }
+
 
             <CustomerDialog
                 open={openDialog}

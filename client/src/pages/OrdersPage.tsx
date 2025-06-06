@@ -18,6 +18,7 @@ import type { Customer } from "../types/Customer"
 import type { Order, OrderDetail, OrderItem, OrderRequest } from "../types/Order"
 import type { Product } from "../types/Product"
 import { getStatusColor } from "../utils/utils"
+import SkeletonTable from "../components/Common/SkeletonTable"
 
 const OrdersPage: React.FC = () => {
     const [orders, setOrders] = useState<Order[]>([])
@@ -34,6 +35,7 @@ const OrdersPage: React.FC = () => {
     })
     const [statusOrderId, setStatusOrderId] = useState<number | null>(null);
     const [newStatus, setNewStatus] = useState<string>("");
+    const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
         fetchOrders()
@@ -43,6 +45,7 @@ const OrdersPage: React.FC = () => {
 
     const fetchOrders = async () => {
         try {
+            setIsLoading(true);
             const response = await fetch("/api/orders");
             const data = await response.json()
             console.log("order data: ", data)
@@ -51,30 +54,40 @@ const OrdersPage: React.FC = () => {
             showSnackbar("Error fetching orders", "error")
             console.error(error)
         }
+        finally {
+            setIsLoading(false);
+        }
     }
 
     const fetchCustomers = async () => {
         try {
+            setIsLoading(true)
             const response = await fetch("api/customers");
             const data = await response.json();
             setCustomers(data.data)
         } catch (error) {
             console.error("Error fetching customers:", error)
+        } finally {
+            setIsLoading(false);
         }
     }
 
     const fetchProducts = async () => {
         try {
+            setIsLoading(true)
             const response = await fetch("api/products");
             const data = await response.json();
             setProducts(data.data)
         } catch (error) {
             console.error("Error fetching products:", error)
+        } finally {
+            setIsLoading(false);
         }
     }
 
     const fetchOrderDetails = async (orderId: number) => {
         try {
+            setIsLoading(true)
             const response = await fetch(`/api/orders/${orderId}`)
             const data = await response.json();
             console.log("order details: ", data)
@@ -83,6 +96,8 @@ const OrdersPage: React.FC = () => {
         } catch (error) {
             showSnackbar("Error fetching order details", "error")
             console.error(error)
+        } finally {
+            setIsLoading(false);
         }
     }
 
@@ -253,41 +268,48 @@ const OrdersPage: React.FC = () => {
             </Box>
 
             {/* Order Details Table */}
-            <TableComponent
-                data={orders}
-                columns={[
-                    { label: "Order ID", key: "order_id", render: (v) => `#${v}` },
-                    { label: "Customer", key: "customer_name" },
-                    {
-                        label: "Date", key: "order_date", render: (v) =>
-                            new Date(v).toLocaleDateString()
-                    },
-                    {
-                        label: "Status", key: "order_status", render: (v) => (
-                            <Chip
-                                label={v.charAt(0).toUpperCase() + v.slice(1)}
-                                color={getStatusColor(v)}
-                                variant="outlined"
-                                sx={{ textTransform: "capitalize", fontWeight: "bold", padding: "5px 12px", borderRadius: 3 }}
-                            />
-                        )
-                    },
-                    {
-                        label: "Total Amount", key: "total_amount", render: (v) => `₹${v}`
-                    }
-                ]}
-                onEdit={(row) => {
-                    setOpenEditDialog(true);
-                    setStatusOrderId(row.order_id ?? 0);
-                    setNewStatus(row.order_status.toLowerCase());
-                }}
-                onDelete={(row) => handleDelete(row.order_id ?? 0)}
-                actions={(row) => (
-                    <IconButton onClick={() => fetchOrderDetails(row.order_id ?? 0)}>
-                        <ViewIcon />
-                    </IconButton>
-                )}
-            />
+            {
+                isLoading ? (
+                    <SkeletonTable rows={5} columns={6} />
+                ) : (
+                    <TableComponent
+                        data={orders}
+                        columns={[
+                            { label: "Order ID", key: "order_id", render: (v) => `#${v}` },
+                            { label: "Customer", key: "customer_name" },
+                            {
+                                label: "Date", key: "order_date", render: (v) =>
+                                    new Date(v).toLocaleDateString()
+                            },
+                            {
+                                label: "Status", key: "order_status", render: (v) => (
+                                    <Chip
+                                        label={v.charAt(0).toUpperCase() + v.slice(1)}
+                                        color={getStatusColor(v)}
+                                        variant="outlined"
+                                        sx={{ textTransform: "capitalize", fontWeight: "bold", padding: "5px 12px", borderRadius: 3 }}
+                                    />
+                                )
+                            },
+                            {
+                                label: "Total Amount", key: "total_amount", render: (v) => `₹${v}`
+                            }
+                        ]}
+                        onEdit={(row) => {
+                            setOpenEditDialog(true);
+                            setStatusOrderId(row.order_id ?? 0);
+                            setNewStatus(row.order_status.toLowerCase());
+                        }}
+                        onDelete={(row) => handleDelete(row.order_id ?? 0)}
+                        actions={(row) => (
+                            <IconButton onClick={() => fetchOrderDetails(row.order_id ?? 0)}>
+                                <ViewIcon />
+                            </IconButton>
+                        )}
+                    />
+                )
+            }
+
 
             {/* Place Order Dialog */}
             <PlaceOrderDialog addOrderItem={addOrderItem} calculateTotal={calculateTotal} customers={customers} formData={formData} handleSubmit={handleSubmit} onClose={handleCloseDialog} open={openDialog} products={products} removeOrderItem={removeOrderItem} setFormData={setFormData} updateOrderItem={updateOrderItem} />

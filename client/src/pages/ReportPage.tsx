@@ -21,6 +21,7 @@ import type React from "react";
 import { useEffect, useState } from "react";
 import TableComponent from "../components/Common/Table";
 import type { CustomerOrder, CustomerReport, DailySales, ProductSales } from "../types/Report";
+import SkeletonTable from "../components/Common/SkeletonTable";
 
 const ReportsPage: React.FC = () => {
     const [customers, setCustomers] = useState<CustomerReport[]>([])
@@ -29,6 +30,10 @@ const ReportsPage: React.FC = () => {
     const [productSales, setProductSales] = useState<ProductSales[]>([])
     const [dailySales, setDailySales] = useState<DailySales[]>([])
     const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" as "success" | "error" })
+    const [loadingCustomerOrders, setLoadingCustomerOrders] = useState(false);
+    const [loadingProductSales, setLoadingProductSales] = useState(true);
+    const [loadingDailySales, setLoadingDailySales] = useState(true);
+
 
     useEffect(() => {
         fetchCustomers()
@@ -50,34 +55,43 @@ const ReportsPage: React.FC = () => {
 
     const fetchCustomerOrders = async (customerId: string) => {
         try {
+            setLoadingCustomerOrders(true);
             const response = await fetch(`api/reports/customer-orders/${customerId}`);
             const data = await response.json();
             console.log("individual customer order: ", data)
             setCustomerOrders(data)
         } catch (error) {
             console.error("Error fetching customer orders:", error)
+        } finally {
+            setLoadingCustomerOrders(false);
         }
     }
 
     const fetchProductSales = async () => {
         try {
+            setLoadingProductSales(true);
             const response = await fetch("api/reports/product-sales");
             const data = await response.json();
             setProductSales(data)
             console.log("product sales: ", data)
         } catch (error) {
             console.error("Error fetching product sales:", error)
+        } finally {
+            setLoadingProductSales(false);
         }
     }
 
     const fetchDailySales = async () => {
         try {
+            setLoadingDailySales(true);
             const response = await fetch("api/reports/daily-sales");
             const data = await response.json();
             setDailySales(data)
             console.log("daily sales: ", data)
         } catch (error) {
             console.error("Error fetching daily sales:", error)
+        } finally {
+            setLoadingDailySales(false);
         }
     }
 
@@ -209,15 +223,20 @@ const ReportsPage: React.FC = () => {
                             </FormControl>
 
                             {customerOrders.length > 0 && (
-                                <TableComponent
-                                    data={customerOrders}
-                                    columns={[
-                                        { label: "Order ID", key: "order_id", render: (v) => `#${v}` },
-                                        { label: "Date", key: "order_date", render: (v) => new Date(v).toLocaleDateString() },
-                                        { label: "Status", key: "order_status" },
-                                        { label: "Amount", key: "total_amount", render: (v) => `₹${v}` }
-                                    ]}
-                                />
+                                loadingCustomerOrders ? (
+                                    <SkeletonTable columns={4} rows={4} />
+                                ) : (
+
+                                    <TableComponent
+                                        data={customerOrders}
+                                        columns={[
+                                            { label: "Order ID", key: "order_id", render: (v) => `#${v}` },
+                                            { label: "Date", key: "order_date", render: (v) => new Date(v).toLocaleDateString() },
+                                            { label: "Status", key: "order_status" },
+                                            { label: "Amount", key: "total_amount", render: (v) => `₹${v}` }
+                                        ]}
+                                    />
+                                )
                             )}
 
                             {selectedCustomerId && customerOrders?.length === 0 && (
@@ -236,14 +255,18 @@ const ReportsPage: React.FC = () => {
                             <Typography variant="h6" gutterBottom>
                                 Product Sales Report
                             </Typography>
-                            <TableComponent
-                                data={productSales}
-                                columns={[
-                                    { label: "Product", key: "product_name" },
-                                    { label: "Qty Sold", key: "total_quantity_sold" },
-                                    { label: "Revenue", key: "total_revenue", render: (v) => `₹${v}` }
-                                ]}
-                            />
+                            {loadingProductSales ? (
+                                <SkeletonTable columns={3} rows={5} />
+                            ) : (
+                                <TableComponent
+                                    data={productSales}
+                                    columns={[
+                                        { label: "Product", key: "product_name" },
+                                        { label: "Qty Sold", key: "total_quantity_sold" },
+                                        { label: "Revenue", key: "total_revenue", render: (v) => `₹${v}` }
+                                    ]}
+                                />
+                            )}
                         </CardContent>
                     </Card>
                 </Grid>
@@ -255,22 +278,26 @@ const ReportsPage: React.FC = () => {
                             <Typography variant="h6" gutterBottom>
                                 Daily Sales Report
                             </Typography>
-                            <TableComponent
-                                data={dailySales}
-                                columns={[
-                                    { label: "Date", key: "sales_day", render: (v) => new Date(v).toLocaleDateString() },
-                                    { label: "Total Sales", key: "total_sales", render: (v) => `₹${v}` },
-                                    { label: "Number of Orders", key: "total_orders" },
-                                    {
-                                        label: "Average Order Value",
-                                        key: "total_sales",
-                                        render: (_, row) =>
-                                            row.total_orders > 0
-                                                ? `₹${(row.total_sales / row.total_orders).toFixed(2)}`
-                                                : "₹0.00"
-                                    }
-                                ]}
-                            />
+                            {loadingDailySales ? (
+                                <SkeletonTable columns={4} rows={5} />
+                            ) : (
+                                <TableComponent
+                                    data={dailySales}
+                                    columns={[
+                                        { label: "Date", key: "sales_day", render: (v) => new Date(v).toLocaleDateString() },
+                                        { label: "Total Sales", key: "total_sales", render: (v) => `₹${v}` },
+                                        { label: "Number of Orders", key: "total_orders" },
+                                        {
+                                            label: "Average Order Value",
+                                            key: "total_sales",
+                                            render: (_, row) =>
+                                                row.total_orders > 0
+                                                    ? `₹${(row.total_sales / row.total_orders).toFixed(2)}`
+                                                    : "₹0.00"
+                                        }
+                                    ]}
+                                />
+                            )}
                         </CardContent>
                     </Card>
                 </Grid>

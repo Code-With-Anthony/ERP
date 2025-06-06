@@ -11,6 +11,7 @@ import TableComponent from "../components/Common/Table"
 import ProductDialog from "../components/Dialog/ProductDialog"
 import { productSchema } from "../schemas/productSchema"
 import type { Product } from "../types/Product"
+import SkeletonTable from "../components/Common/SkeletonTable"
 
 const ProductsPage = () => {
     const [products, setProducts] = useState<Product[]>([])
@@ -26,6 +27,7 @@ const ProductsPage = () => {
         reorder_level: "",
     })
     const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+    const [isLoading, setIsLoading] = useState(false);
 
 
     useEffect(() => {
@@ -35,23 +37,29 @@ const ProductsPage = () => {
 
     const fetchProducts = async () => {
         try {
+            setIsLoading(true)
             const response = await fetch("/api/products")
             const data = await response.json()
             setProducts(data.data)
             console.log(data)
         } catch {
             showSnackbar("Error fetching products", "error")
+        } finally {
+            setIsLoading(false)
         }
     }
 
     const fetchLowStockProducts = async () => {
         try {
+            setIsLoading(true)
             const response = await fetch("/api/products/low-stock")
             const data = await response.json()
             console.log("low stock data: ", data)
             setLowStockProducts(data.data)
         } catch (error) {
             console.error("Error fetching low stock products:", error)
+        } finally {
+            setIsLoading(false)
         }
     }
 
@@ -188,12 +196,18 @@ const ProductsPage = () => {
                 </Alert>
             )}
 
-            <TableComponent
-                data={products}
-                columns={columns}
-                onEdit={handleEdit}
-                onDelete={handleDelete}
-            />
+            {
+                isLoading ? (
+                    <SkeletonTable rows={5} columns={6} />
+                ) : (
+                    <TableComponent
+                        data={products}
+                        columns={columns}
+                        onEdit={handleEdit}
+                        onDelete={handleDelete}
+                    />
+                )
+            }
 
             <ProductDialog
                 open={openDialog}
