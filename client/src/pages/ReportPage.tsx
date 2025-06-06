@@ -13,19 +13,13 @@ import {
     Grid,
     InputLabel,
     MenuItem,
-    Paper,
     Select,
     Snackbar,
-    Table,
-    TableBody,
-    TableCell,
-    TableContainer,
-    TableHead,
-    TableRow,
     Typography
 } from "@mui/material";
 import type React from "react";
 import { useEffect, useState } from "react";
+import TableComponent from "../components/Common/Table";
 import type { CustomerOrder, CustomerReport, DailySales, ProductSales } from "../types/Report";
 
 const ReportsPage: React.FC = () => {
@@ -165,7 +159,7 @@ const ReportsPage: React.FC = () => {
                                     <Typography color="textSecondary" gutterBottom>
                                         Avg Daily Sales
                                     </Typography>
-                                    <Typography variant="h5">₹{getAverageDailySales()}</Typography>
+                                    <Typography variant="h5">₹{getAverageDailySales().toFixed(2)}</Typography>
                                 </Box>
                             </Box>
                         </CardContent>
@@ -214,29 +208,16 @@ const ReportsPage: React.FC = () => {
                                 </Select>
                             </FormControl>
 
-                            {customerOrders?.length > 0 && (
-                                <TableContainer component={Paper} sx={{ maxHeight: 400 }}>
-                                    <Table stickyHeader>
-                                        <TableHead>
-                                            <TableRow>
-                                                <TableCell>Order ID</TableCell>
-                                                <TableCell>Date</TableCell>
-                                                <TableCell>Status</TableCell>
-                                                <TableCell>Amount</TableCell>
-                                            </TableRow>
-                                        </TableHead>
-                                        <TableBody>
-                                            {customerOrders?.map((order) => (
-                                                <TableRow key={order.order_id}>
-                                                    <TableCell>#{order.order_id}</TableCell>
-                                                    <TableCell>{new Date(order.order_date).toLocaleDateString()}</TableCell>
-                                                    <TableCell>{order.order_status}</TableCell>
-                                                    <TableCell>₹{order.total_amount}</TableCell>
-                                                </TableRow>
-                                            ))}
-                                        </TableBody>
-                                    </Table>
-                                </TableContainer>
+                            {customerOrders.length > 0 && (
+                                <TableComponent
+                                    data={customerOrders}
+                                    columns={[
+                                        { label: "Order ID", key: "order_id", render: (v) => `#${v}` },
+                                        { label: "Date", key: "order_date", render: (v) => new Date(v).toLocaleDateString() },
+                                        { label: "Status", key: "order_status" },
+                                        { label: "Amount", key: "total_amount", render: (v) => `₹${v}` }
+                                    ]}
+                                />
                             )}
 
                             {selectedCustomerId && customerOrders?.length === 0 && (
@@ -255,26 +236,14 @@ const ReportsPage: React.FC = () => {
                             <Typography variant="h6" gutterBottom>
                                 Product Sales Report
                             </Typography>
-                            <TableContainer component={Paper} sx={{ maxHeight: 400 }}>
-                                <Table stickyHeader>
-                                    <TableHead>
-                                        <TableRow>
-                                            <TableCell>Product</TableCell>
-                                            <TableCell>Qty Sold</TableCell>
-                                            <TableCell>Revenue</TableCell>
-                                        </TableRow>
-                                    </TableHead>
-                                    <TableBody>
-                                        {productSales?.map((product) => (
-                                            <TableRow key={product.product_id}>
-                                                <TableCell>{product.product_name}</TableCell>
-                                                <TableCell>{product.total_quantity_sold}</TableCell>
-                                                <TableCell>₹{product.total_revenue}</TableCell>
-                                            </TableRow>
-                                        ))}
-                                    </TableBody>
-                                </Table>
-                            </TableContainer>
+                            <TableComponent
+                                data={productSales}
+                                columns={[
+                                    { label: "Product", key: "product_name" },
+                                    { label: "Qty Sold", key: "total_quantity_sold" },
+                                    { label: "Revenue", key: "total_revenue", render: (v) => `₹${v}` }
+                                ]}
+                            />
                         </CardContent>
                     </Card>
                 </Grid>
@@ -286,30 +255,22 @@ const ReportsPage: React.FC = () => {
                             <Typography variant="h6" gutterBottom>
                                 Daily Sales Report
                             </Typography>
-                            <TableContainer component={Paper}>
-                                <Table>
-                                    <TableHead>
-                                        <TableRow>
-                                            <TableCell>Date</TableCell>
-                                            <TableCell>Total Sales</TableCell>
-                                            <TableCell>Number of Orders</TableCell>
-                                            <TableCell>Average Order Value</TableCell>
-                                        </TableRow>
-                                    </TableHead>
-                                    <TableBody>
-                                        {dailySales?.map((day) => (
-                                            <TableRow key={day.sales_day}>
-                                                <TableCell>{new Date(day.sales_day).toLocaleDateString()}</TableCell>
-                                                <TableCell>₹{day.total_sales}</TableCell>
-                                                <TableCell>{day.total_orders}</TableCell>
-                                                <TableCell>
-                                                    ₹{day.total_orders > 0 ? (day.total_sales / day.total_orders).toFixed(2) : "0.00"}
-                                                </TableCell>
-                                            </TableRow>
-                                        ))}
-                                    </TableBody>
-                                </Table>
-                            </TableContainer>
+                            <TableComponent
+                                data={dailySales}
+                                columns={[
+                                    { label: "Date", key: "sales_day", render: (v) => new Date(v).toLocaleDateString() },
+                                    { label: "Total Sales", key: "total_sales", render: (v) => `₹${v}` },
+                                    { label: "Number of Orders", key: "total_orders" },
+                                    {
+                                        label: "Average Order Value",
+                                        key: "total_sales",
+                                        render: (_, row) =>
+                                            row.total_orders > 0
+                                                ? `₹${(row.total_sales / row.total_orders).toFixed(2)}`
+                                                : "₹0.00"
+                                    }
+                                ]}
+                            />
                         </CardContent>
                     </Card>
                 </Grid>

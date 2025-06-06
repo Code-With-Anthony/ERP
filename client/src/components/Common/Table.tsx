@@ -16,8 +16,8 @@ interface TableComponentProps<T> {
     data: T[];
     columns: Array<{ label: string, key: keyof T, render?: (value: any, row: T) => React.ReactNode }>;
     actions?: (row: T) => React.ReactNode;
-    onEdit: (item: T) => void;
-    onDelete: (item: T) => void;
+    onEdit?: (item: T) => void;
+    onDelete?: (item: T) => void;
     rowsPerPageOptions?: number[];
     defaultRowsPerPage?: number;
 }
@@ -39,6 +39,7 @@ const TableComponent = <T extends object>({
         setPage(0);
     };
     const paginatedData = data.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+    const hasActions = !!onEdit || !!onDelete || !!actions;
 
     return (
         <Paper>
@@ -49,7 +50,7 @@ const TableComponent = <T extends object>({
                             {columns.map((col) => (
                                 <TableCell key={col.label}>{col.label}</TableCell>
                             ))}
-                            <TableCell>Actions</TableCell>
+                            {hasActions && <TableCell>Actions</TableCell>}
                         </TableRow>
                     </TableHead>
                     <TableBody>
@@ -59,16 +60,22 @@ const TableComponent = <T extends object>({
                                     <TableCell key={col.label}>
                                         {col.render ? col.render(row[col.key], row) : (row[col.key] as React.ReactNode)}
                                     </TableCell>
-                                ))}
-                                <TableCell>
-                                    <IconButton onClick={() => onEdit(row)}>
-                                        <EditIcon />
-                                    </IconButton>
-                                    <IconButton onClick={() => onDelete(row)}>
-                                        <DeleteIcon sx={{ color: "#B22222" }} />
-                                    </IconButton>
-                                    {actions && actions(row)}
-                                </TableCell>
+                                ))}{
+                                    hasActions && (
+                                        <TableCell>
+                                            {onEdit && (
+                                                <IconButton onClick={() => onEdit(row)}>
+                                                    <EditIcon />
+                                                </IconButton>
+                                            )}
+                                            {onDelete && (
+                                                <IconButton onClick={() => onDelete(row)}>
+                                                    <DeleteIcon sx={{ color: "#B22222" }} />
+                                                </IconButton>
+                                            )}
+                                            {actions && actions(row)}
+                                        </TableCell>
+                                    )}
                             </TableRow>
                         ))}
                     </TableBody>
