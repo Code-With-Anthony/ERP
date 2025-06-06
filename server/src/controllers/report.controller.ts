@@ -48,7 +48,8 @@ export const getDailySales = async (_req: Request, res: Response) => {
         const sql = `
       SELECT 
         DATE_TRUNC('day', order_date) AS sales_day,
-        SUM(total_amount) AS total_sales
+        SUM(total_amount) AS total_sales,
+        COUNT(*) As total_orders
       FROM orders
       GROUP BY sales_day
       ORDER BY sales_day DESC

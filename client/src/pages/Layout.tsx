@@ -19,6 +19,7 @@ import {
     People as CustomersIcon,
     Inventory as ProductsIcon,
     ShoppingCart as OrdersIcon,
+    Analytics as ReportsIcon,
 } from "@mui/icons-material"
 import { useState } from "react"
 import { useNavigate, useLocation } from "react-router-dom"
@@ -29,6 +30,7 @@ const menuItems = [
     { path: "/", label: "Products", icon: <ProductsIcon /> },
     { path: "/customers", label: "Customers", icon: <CustomersIcon /> },
     { path: "/orders", label: "Orders", icon: <OrdersIcon /> },
+    { path: "/reports", label: "Reports", icon: <ReportsIcon /> },
 ]
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
