@@ -183,7 +183,7 @@ const ProductsPage = () => {
                 </Button>
             </Box>
 
-            {lowStockProducts.length > 0 && (
+            {lowStockProducts?.length > 0 && (
                 <Alert severity="warning" sx={{ mb: 3 }}>
                     <Typography variant="h6" gutterBottom>
                         Low Stock Alert
