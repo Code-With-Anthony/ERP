@@ -22,11 +22,11 @@ const CustomerDialog: React.FC<CustomerDialogProps> = ({
                 <Box sx={{ pt: 2 }}>
                     <Grid container spacing={2}>
                         {[
-                            { label: 'Customer Name', field: 'customer_name' },
+                            { label: 'Customer Name', field: 'customer_name', maxLength: 20 },
                             { label: 'Email', field: 'email', type: 'email' },
                             { label: 'Phone', field: 'phone_number' },
-                            { label: 'Address', field: 'address', multiline: true, rows: 3 },
-                        ].map(({ label, field, type = 'text', multiline = false, rows = 1 }) => (
+                            { label: 'Address', field: 'address', multiline: true, rows: 3, maxLength: 150 },
+                        ].map(({ label, field, type = 'text', multiline = false, rows = 1, maxLength }) => (
                             <FormField
                                 key={field}
                                 label={label}
@@ -37,6 +37,7 @@ const CustomerDialog: React.FC<CustomerDialogProps> = ({
                                 rows={rows}
                                 error={!!formErrors[field]}
                                 helperText={formErrors[field]}
+                                maxLength={maxLength}
                             />
                         ))}
                     </Grid>
