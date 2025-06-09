@@ -1,11 +1,11 @@
 
-# 🏢 Enterprise Resource Planner (ERP) - Simplified Inventory & Order Management
+# Enterprise Resource Planner (ERP) - Simplified Inventory & Order Management
 
 A full-stack ERP system focused on **Inventory and Order Management**, built with a **Node.js + Express** backend and a **React** frontend. This project is designed to strengthen **SQL proficiency** by using **raw SQL queries** for all backend operations and features a minimal UI for testing the core functionality.
 
 ---
 
-## 🔧 Tech Stack
+## Tech Stack
 
 - **Backend**: Node.js, Express.js, Typescript
 - **Database**: PostgreSQL (Supabase), PG (For Connection)
@@ -14,7 +14,7 @@ A full-stack ERP system focused on **Inventory and Order Management**, built wit
 
 ---
 
-## 🎯 Project Goals
+## Project Goals
 
 - Build a working ERP backend with a strong focus on **raw SQL** (no ORMs).
 - Implement CRUD operations for products, customers, and orders.
@@ -24,9 +24,9 @@ A full-stack ERP system focused on **Inventory and Order Management**, built wit
 
 ---
 
-## 🧩 Database Schema
+## Database Schema
 
-### 📦 Products Table
+### Products Table
 - `product_id` (PK)
 - `product_name`
 - `description`
@@ -34,21 +34,21 @@ A full-stack ERP system focused on **Inventory and Order Management**, built wit
 - `current_stock`
 - `reorder_level`
 
-### 👤 Customers Table
+### Customers Table
 - `customer_id` (PK)
 - `customer_name`
 - `email` (unique)
 - `phone_number`
 - `address`
 
-### 🧾 Orders Table
+### Orders Table
 - `order_id` (PK)
 - `customer_id` (FK)
 - `order_date`
 - `total_amount`
 - `order_status` (e.g., `PENDING`, `SHIPPED`, `DELIVERED`, `CANCELLED`)
 
-### 📑 Order Items Table
+### Order Items Table
 - `order_item_id` (PK)
 - `order_id` (FK)
 - `product_id` (FK)
@@ -57,9 +57,9 @@ A full-stack ERP system focused on **Inventory and Order Management**, built wit
 
 ---
 
-## 📡 API Endpoints
+## API Endpoints
 
-### 🔹 Product Management
+### Product Management
 - `GET /products`
 - `GET /products/:id`
 - `POST /products`
@@ -67,30 +67,30 @@ A full-stack ERP system focused on **Inventory and Order Management**, built wit
 - `DELETE /products/:id`
 - `GET /products/low-stock`
 
-### 🔹 Customer Management
+### Customer Management
 - `GET /customers`
 - `GET /customers/:id`
 - `POST /customers`
 - `PUT /customers/:id`
 - `DELETE /customers/:id`
 
-### 🔹 Order Management
+### Order Management
 - `POST /orders` (Transactional)
 - `GET /orders`
 - `GET /orders/:id`
 - `PUT /orders/:id/status`
 - `DELETE /orders/:id` (Transactional)
 
-### 🔹 Reports
+### Reports
 - `GET /reports/customer-orders/:customerId`
 - `GET /reports/product-sales`
 - `GET /reports/daily-sales`
 
-> ✅ All endpoints are implemented using **raw SQL** queries only.
+All endpoints are implemented using **raw SQL** queries only.
 
 ---
 
-## 🖥️ Frontend Overview
+## Frontend Overview
 
 The frontend is a lightweight React application providing:
 - Product listing and management
@@ -100,7 +100,7 @@ The frontend is a lightweight React application providing:
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 - Node.js
@@ -118,7 +118,7 @@ cd your-repo-name
 #### Install Dependencies
 
 ```bash
-cd backend
+cd server
 npm install
 ```
 
@@ -143,56 +143,28 @@ npm run dev
 ### 3. Setup the Frontend
 
 ```bash
-cd frontend
+cd client
 npm install
 npm run dev
 ```
 
----
-
-## 📂 Folder Structure
-
-```
-├── backend/
-│   ├── routes/
-│   ├── controllers/
-│   ├── db/
-│   ├── constants/
-|   ├── controllers/
-|   ├── types/
-│   └── app.ts
-│   └── server.ts
-├── frontend/
-│   └── src
-│     ├── components/
-│     ├── pages/
-│     ├── schemas/
-│     ├── types/
-│   └── App.tsx
-│   └── App.css
-│   └── index.css
-│   └── main.tsx
-```
-
----
-
-## 🧪 Testing
+## Testing
 
 Use **Postman** or any REST client to test all endpoints.
 
 ---
 
-## ✅ Features Summary
+## Features Summary
 
-* ✅ Full CRUD on products, customers, and orders
-* ✅ SQL transactions for safe order placement and cancellation
-* ✅ Order status update rules (e.g., can't revert from DELIVERED to PENDING)
-* ✅ Low stock alert endpoint
-* ✅ Analytics reports using complex SQL joins and aggregations
+*  Full CRUD on products, customers, and orders
+*  SQL transactions for safe order placement and cancellation
+*  Order status update rules (e.g., can't revert from DELIVERED to PENDING)
+*  Low stock alert endpoint
+*  Analytics reports using complex SQL joins and aggregations
 
 ---
 
-## 📘 Learnings & Takeaways
+## Learnings & Takeaways
 
 * Mastered SQL JOINs, GROUP BY, and aggregate functions
 * Improved understanding of transaction safety and rollback mechanisms
@@ -201,7 +173,7 @@ Use **Postman** or any REST client to test all endpoints.
 
 ---
 
-## 🙌 Acknowledgments
+## Acknowledgments
 
 This project was completed as part of a week-long ERP challenge focused on backend system design and SQL mastery under mentorship.
 
