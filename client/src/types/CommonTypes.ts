@@ -7,4 +7,5 @@ export type FormFieldProps = {
     rows?: number;
     error?: boolean;
     helperText?: string;
+    maxLength?: number;
 };

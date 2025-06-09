@@ -1,8 +1,8 @@
 import { z } from "zod";
 
 export const productSchema = z.object({
-    product_name: z.string().min(3, "Product name must be atleast 3 characters long"),
-    description: z.string().min(10, "Product description must be atleast 10 characters long"),
+    product_name: z.string().trim().min(3, "Product name must be atleast 3 characters long"),
+    description: z.string().trim().min(10, "Product description must be atleast 10 characters long"),
     unit_price: z.string().refine(
         val => {
             const num = parseFloat(val);

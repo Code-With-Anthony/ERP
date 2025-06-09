@@ -21,12 +21,12 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
             <DialogContent>
                 <Grid container spacing={2} sx={{ mt: 1 }}>
                     {[
-                        { label: 'Product Name', field: 'product_name' },
-                        { label: 'Description', field: 'description', multiline: true, rows: 3 },
+                        { label: 'Product Name', field: 'product_name', maxLength: 20 },
+                        { label: 'Description', field: 'description', multiline: true, rows: 3, maxLength: 150 },
                         { label: 'Price', field: 'unit_price', type: 'number' },
                         { label: 'Current Stock', field: 'current_stock', type: 'number' },
                         { label: 'Reorder Level', field: 'reorder_level', type: 'number' },
-                    ].map(({ label, field, type = 'text', multiline = false, rows = 1 }) => (
+                    ].map(({ label, field, type = 'text', multiline = false, rows = 1, maxLength }) => (
                         <FormField
                             key={field}
                             label={label}
@@ -37,6 +37,7 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
                             rows={rows}
                             error={!!formErrors[field]}
                             helperText={formErrors[field]}
+                            maxLength={maxLength}
                         />
                     ))}
                 </Grid>
