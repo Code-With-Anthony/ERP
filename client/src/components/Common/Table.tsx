@@ -108,14 +108,14 @@ const TableComponent = <T extends object>({
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {paginatedData.map((row, index) => (
+                        {paginatedData?.map((row, index) => (
                             <TableRow key={index}>
                                 {columns.map((col) => (
                                     <TableCell key={col.label} align="center" sx={{
-                                        maxWidth: col.key === "address" ? 150 : 'auto', // limit width for address
+                                        maxWidth: col.key === "address" || col.key === "description" ? 200 : 'auto',
                                         overflow: 'hidden',
                                         textOverflow: 'ellipsis',
-                                        whiteSpace: 'nowrap'
+                                        whiteSpace: 'wrap'
                                     }}>
                                         <Tooltip title={String(row[col.key])} arrow>
                                             <span>{col.render ? col.render(row[col.key], row) : String(row[col.key])}</span>
@@ -146,7 +146,7 @@ const TableComponent = <T extends object>({
             </TableContainer>
             <TablePagination
                 component="div"
-                count={data.length}
+                count={data?.length === undefined || data?.length === null ? 0 : data?.length}
                 page={page}
                 onPageChange={handleChangePage}
                 rowsPerPage={rowsPerPage}

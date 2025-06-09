@@ -40,8 +40,7 @@ const ProductsPage = () => {
             setIsLoading(true)
             const response = await fetch("/api/products")
             const data = await response.json()
-            setProducts(data.data)
-            console.log(data)
+            setProducts(data?.data)
         } catch {
             showSnackbar("Error fetching products", "error")
         } finally {
@@ -54,7 +53,6 @@ const ProductsPage = () => {
             setIsLoading(true)
             const response = await fetch("/api/products/low-stock")
             const data = await response.json()
-            console.log("low stock data: ", data)
             setLowStockProducts(data.data)
         } catch (error) {
             console.error("Error fetching low stock products:", error)
@@ -91,7 +89,6 @@ const ProductsPage = () => {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(productData),
             })
-            console.log("response: ", response);
 
             if (response.ok) {
                 showSnackbar(`Product ${editingProduct ? "updated" : "created"} successfully`, "success");
@@ -100,7 +97,9 @@ const ProductsPage = () => {
                 handleCloseDialog();
                 setFormErrors({});
             } else {
-                throw new Error("Failed to save product")
+                const errorData = await response.json();
+                const errorMessage = errorData?.message || "Failed to save product";
+                throw new Error(errorMessage);
             }
         } catch (error: any) {
             if (error?.name === "ZodError") {
@@ -112,7 +111,13 @@ const ProductsPage = () => {
                 });
                 setFormErrors(fieldErrors);
             } else {
-                showSnackbar("Error saving product", "error");
+                const message =
+                    typeof error === "string"
+                        ? error
+                        : error instanceof Error && error.message
+                            ? error.message
+                            : "An unexpected error occurred";
+                showSnackbar(message, "error");
             }
         }
     }
