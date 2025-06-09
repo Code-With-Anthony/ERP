@@ -93,7 +93,7 @@ const CustomersPage: React.FC = () => {
                 setFormErrors(fieldErrors);
             } else {
                 showSnackbar("Error saving customer", "error");
-                console.error(error.err)
+                console.error(error)
             }
             showSnackbar("Error saving customer", "error")
         }

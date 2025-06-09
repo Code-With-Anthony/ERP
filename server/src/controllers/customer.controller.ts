@@ -1,54 +1,72 @@
-import pool from "../db/supabase";
-import { Customer } from "../types/customer";
+import { ERROR_MESSAGES, SUCCESS_MESSAGES } from "../constants/customer/CustomerConstant";
+import * as customerService from "../services/customer.service";
 
 // Retrieve All Customers.
-export const getAllCustomers = async (): Promise<Customer[]> => {
-    const sql = `SELECT * FROM customers WHERE deleted_at IS NULL ORDER BY customer_name ASC`;
-    const { rows } = await pool.query(sql);
-    return rows
-}
+export const getAllCustomers = async (req: any, res: any) => {
+    try {
+        const customers = await customerService.fetchAllCustomers();
+        if (!customers) throw new Error(ERROR_MESSAGES.FETCH_ALL_CUSTOMERS_FAILED)
+        res.status(200).json({
+            message: SUCCESS_MESSAGES.FETCH_ALL_CUSTOMERS,
+            data: customers,
+        });
+    } catch (error) {
+        throw error;
+    }
+};
 
 // Retrieve Customer by ID
-export const getCustomerById = async (id: string): Promise<Customer | null> => {
-    const sql = `SELECT * FROM customers WHERE customer_id = $1 AND deleted_at IS NULL`;
-    const { rows } = await pool.query(sql, [id]);
-    return rows[0] || null;
+export const getCustomerById = async (req: any, res: any) => {
+    try {
+        const customer = await customerService.fetchCustomerById(req.params.id);
+        if (!customer) throw new Error(ERROR_MESSAGES.CUSTOMER_NOT_FOUND)
+        res.status(200).json({
+            message: SUCCESS_MESSAGES.FETCH_SINGLE_CUSTOMER,
+            data: customer,
+        })
+    } catch (error) {
+        throw error
+    }
 }
 
 // Add New Customer
-export const addCustomer = async (customer: Customer): Promise<Customer> => {
-    const { customer_name, email, phone_number, address } = customer;
-    const sql = `INSERT INTO customers (customer_name, email, phone_number, address) VALUES ($1, $2, $3, $4) RETURNING *`;
-    const { rows } = await pool.query(sql, [customer_name, email, phone_number, address])
-    return rows[0];
+export const addCustomer = async (req: any, res: any) => {
+    try {
+        const newCustomer = await customerService.createCustomer(req.body);
+        if (!newCustomer) throw new Error(ERROR_MESSAGES.CUSTOMER_CREATION_FAILED)
+        res.status(201).json({
+            message: SUCCESS_MESSAGES.CUSTOMER_CREATED,
+            data: newCustomer
+        })
+    } catch (error) {
+        throw error
+    }
 }
 
 // Update Existing Customer
-export const updateCustomer = async (id: string, customer: Customer): Promise<Customer | null> => {
-    const { customer_name, email, phone_number, address } = customer;
-    const sql = `UPDATE customers SET customer_name = $1, email = $2, phone_number = $3, address = $4 WHERE customer_id = $5 AND deleted_at IS NULL RETURNING *`;
-    const { rows } = await pool.query(sql, [customer_name, email, phone_number, address, id])
-    return rows[0] || null;
+export const updateCustomer = async (req: any, res: any) => {
+    try {
+        const updatedCustomer = await customerService.updateCustomer(req.params.id, req.body);
+        if (!updatedCustomer) throw new Error(ERROR_MESSAGES.CUSTOMER_NOT_FOUND)
+        res.json({
+            message: SUCCESS_MESSAGES.CUSTOMER_UPDATED,
+            data: updatedCustomer
+        });
+    } catch (error) {
+        throw error
+    }
 }
 
 // Delete Customer
-export const deleteCustomer = async (id: string): Promise<Customer | null> => {
-    const sql = `UPDATE customers SET deleted_at = NOW() WHERE customer_id = $1 AND deleted_at IS NULL RETURNING *`;
-    const { rows } = await pool.query(sql, [id]);
-    return rows[0] || null;
-}
-
-// Additional Admin only routes
-// 1. View deleted customers
-export const getDeletedCustomers = async (): Promise<Customer[]> => {
-    const sql = `SELECT * FROM customers WHERE deleted_at IS NOT NULL ORDER BY deleted_at DESC`;
-    const { rows } = await pool.query(sql);
-    return rows;
-}
-
-// 2. Restore customer
-export const restoreCustomer = async (id: string): Promise<Customer | null> => {
-    const sql = `UPDATE customers SET deleted_at = NULL WHERE customer_id = $1 RETURNING *`;
-    const { rows } = await pool.query(sql, [id]);
-    return rows[0] || null;
+export const deleteCustomer = async (req: any, res: any) => {
+    try {
+        const deletedCustomer = await customerService.deleteCustomer(req?.params?.id);
+        if (!deletedCustomer) throw new Error(ERROR_MESSAGES.CUSTOMER_DELETION_FAILED)
+        res.json({
+            message: SUCCESS_MESSAGES.CUSTOMER_DELETED,
+            data: deletedCustomer
+        });
+    } catch (error) {
+        throw error
+    }
 }
