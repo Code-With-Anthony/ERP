@@ -2,5 +2,6 @@ import { NextFunction, Request, Response } from "express";
 
 export const errorHandler = (err: any, _req: Request, res: Response, _next: NextFunction) => {
     console.error(err.stack);
-    res.status(500).json({ message: err.message, error: err.message });
+    const statusCode = err.status || err.statusCode || 500;
+    res.status(statusCode).json({ message: err.message || "Internal Server Error", error: err });
 };

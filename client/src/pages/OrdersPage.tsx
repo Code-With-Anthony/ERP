@@ -48,8 +48,7 @@ const OrdersPage: React.FC = () => {
             setIsLoading(true);
             const response = await fetch("/api/orders");
             const data = await response.json()
-            console.log("order data: ", data)
-            setOrders(data)
+            setOrders(data.data)
         } catch (error) {
             showSnackbar("Error fetching orders", "error")
             console.error(error)
@@ -77,7 +76,7 @@ const OrdersPage: React.FC = () => {
             setIsLoading(true)
             const response = await fetch("api/products");
             const data = await response.json();
-            setProducts(data.data)
+            setProducts(data?.data)
         } catch (error) {
             console.error("Error fetching products:", error)
         } finally {
@@ -90,8 +89,7 @@ const OrdersPage: React.FC = () => {
             setIsLoading(true)
             const response = await fetch(`/api/orders/${orderId}`)
             const data = await response.json();
-            console.log("order details: ", data)
-            setSelectedOrder(data)
+            setSelectedOrder(data.data)
             setOpenDetailDialog(true)
         } catch (error) {
             showSnackbar("Error fetching order details", "error")
@@ -152,9 +150,13 @@ const OrdersPage: React.FC = () => {
 
     const handleStatusUpdate = async (orderId: number, newStatus: string) => {
         try {
-            const url = `/api/orders/${orderId}/status`
-            const method = "PUT"
-
+            let url;
+            if (newStatus?.toLowerCase() === "cancelled") {
+                url = `/api/orders/${orderId}`
+            } else {
+                url = `/api/orders/${orderId}/status`
+            }
+            const method = newStatus?.toLowerCase() === "cancelled" ? "DELETE" : "PUT"
             const response = await fetch(url, {
                 method,
                 headers: { "Content-Type": "application/json" },

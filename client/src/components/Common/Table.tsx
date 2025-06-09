@@ -55,7 +55,7 @@ const TableComponent = <T extends object>({
 
     const sortedData = React.useMemo(() => {
         if (!sortColumn) return data;
-        return [...data].sort((a, b) => {
+        return [...data]?.sort((a, b) => {
             const aVal = a[sortColumn];
             const bVal = b[sortColumn];
 
@@ -90,7 +90,7 @@ const TableComponent = <T extends object>({
         });
     }, [data, sortColumn, sortDirection]);
 
-    const paginatedData = sortedData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+    const paginatedData = sortedData?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
     return (
         <Paper>
